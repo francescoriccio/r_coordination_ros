@@ -1,0 +1,24 @@
+<launch>
+    <arg name="robot_name" default="robot0" />
+	<arg name="robot_id" default="0" />
+	<arg name="robots_num" default="1" />
+	
+	<group ns="$(arg robot_name)">
+		<node pkg="tcp_interface" type="tcp_interface" name="tcp" output="screen">
+			<param name="robot_name" value="$(arg robot_name)"/>
+			<param name="TCP_server_port" value="900$(arg robot_id)"/>
+			<param name="UDP_server_port" value="910$(arg robot_id)"/>
+			<param name="network_interface" value="wlan0"/>
+			<param name="UDP_team_min_port" value="9100"/>
+			<param name="UDP_team_max_port" value="9110"/>
+			<param name="config_file" value="$(find tcp_interface)/config/UDPpeers.cfg"/>	
+		</node>
+
+		<node name="r_coordination" pkg="r_coordination" type="r_coordination" launch-prefix="xterm -e"> 
+			<param name="robot_name" value="$(arg robot_name)"/>
+			<param name="robots_num" value="$(arg robots_num)"/>
+		</node>
+
+	</group>
+<!---->
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+	<param name="tf_prefix" value="robot1"/>
+  <node pkg="tcp_interface" type="tcp_interface" name="tcp2" output="screen">
+	<param name="TCP_server_port" value="9001"/>
+    <param name="UDP_server_port" value="9101"/>
+    <param name="network_interface" value="eth0"/>
+    <param name="UDP_team_min_port" value="9100"/>
+    <param name="UDP_team_max_port" value="9110"/>
+    <param name="config_file" value="$(find tcp_interface)/config/UDPpeers.cfg"/>
+  </node>
+
+</launch>
