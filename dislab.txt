@@ -1,0 +1,37 @@
+
+####################### SIMULATION
+# single robot
+roslaunch way_point_navigation way_point_navigation_stage.launch map_name:=DISlabs init_x:=10.0 init_y:=20.0 init_a:=1.57
+
+# two robots
+roslaunch way_point_navigation way_point_2_robots_navigation_stage.launch map_name:=DISlabs init_x0:=10.0 init_y0:=20.0 init_a0:=1.57 init_x1:=9.0 init_y1:=34.0 init_a1:=0.0
+
+# three robots
+roslaunch way_point_navigation way_point_3_robots_navigation_stage.launch map_name:=DISlabs init_x0:=10.0 init_y0:=20.0 init_a0:=1.57 init_x1:=9.0 init_y1:=34.0 init_a1:=0.0 init_x2:=9.0 init_y2:=8.0 init_a2:=3.14
+
+roslaunch way_point_navigation way_point_4_robots_navigation_stage.launch map_name:=DIS_first_floor init_x1:=1.5 init_y1:=38.0 init_a1:=0.0
+
+######################## REAL
+
+###### WAYPOINT_NAV
+# robot 0
+roslaunch way_point_navigation way_point_navigation_turtlebot.launch robot_name:=turtlebot0 agentId:=0 map_name:=DISlabs init_x:=10.0 init_y:=20.0 init_a:=1.57 
+
+# robot 0
+roslaunch way_point_navigation way_point_navigation_sapienzbot.launch robot_name:=sapienzbot0 agentId:=0 map_name:=DISlabs init_x:=10.0 init_y:=20.0 init_a:=1.57 home_x:=10.0 home_y:=20.0 home_th:=1.57
+
+# robot 1
+roslaunch way_point_navigation way_point_navigation_turtlebot.launch robot_name:=turtlebot1 agentId:=1 map_name:=DISlabs init_x:=9.0 init_y:=34.0 init_a:=0.0
+
+# robot 2
+roslaunch way_point_navigation way_point_navigation_turtlebot.launch robot_name:=turtlebot2 agentId:=2 map_name:=DISlabs init_x:=9.0 init_y:=8.0 init_a:=1.57
+
+#RCOORD 
+# robot 0 (robots_num depends on the number of robot within the network)
+roslaunch r_coordination r_coordination.launch robot_name:=turtlebot0 robots_num:=3
+
+# robot 1
+roslaunch r_coordination r_coordination.launch robot_name:=turtlebot1 robots_num:=3
+
+#robot 2
+roslaunch r_coordination r_coordination.launch robot_name:=turtlebot2 robots_num:=3
