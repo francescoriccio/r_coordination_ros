@@ -67,7 +67,11 @@ void RCoordination::dump_data()
     {
         for(unsigned int rp=0; rp<robot_poses.size(); ++rp)
         {
+            int distances[] = {0,0,0};
+            coordinator->getTopologicalGraphHandler()->getDistancesFromPoint(robot_poses.at(rp).x,robot_poses.at(rp).y, robot_poses.at(rp).z, distances);
+
             dump << robot_poses.at(rp).x<<" "<<robot_poses.at(rp).y<<" "<<robot_poses.at(rp).z<<" ";
+            dump << distances[0]<<" "<< distances[1]<<" "<< distances[2]<<" ";
         }
         dump << std::endl;
     }
@@ -94,7 +98,9 @@ void RCoordination::init()
     human_info_trigger =-1;
     door_trigger=-1;
 
-    dump.open("/home/francesco/Desktop/dump.txt", std::fstream::out | std::fstream::app);
+#ifdef DUMP_FILE
+    dump.open("/home/sapienzbot/Desktop/dump.txt", std::fstream::out | std::fstream::app);
+#endif
 
     ///* SIM -------------------------------------------------------*/
     // init simulated humans

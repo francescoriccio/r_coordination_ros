@@ -1,9 +1,9 @@
 <launch>
-    <arg name="map_name" default="DIAG_B1"/>
+    <arg name="map_name" default="DIS_first_floor"/>
     <arg name="init_x0" default="10.0" />
-    <arg name="init_y0" default="1.0" />
-    <arg name="init_a0" default="1.57" />
-    <arg name="init_x1" default="18.0" />
+    <arg name="init_y0" default="2.0" />
+    <arg name="init_a0" default="0.0" />
+    <arg name="init_x1" default="8.0" />
     <arg name="init_y1" default="2.0" />
     <arg name="init_a1" default="0.0" />
 

@@ -20,7 +20,7 @@
 //#define ONLY_CLEAR_AREA_EVENT
 
 //#define COORD_VIS
-#define DUMP_FILE
+//#define DUMP_FILE
 #define VIS_DOOR_STATUS
 #define NEAR_TARGET_THRESHOLD 10 //[pixels]
 #define TIMEOUT_THRESHOLD 300 //[s]
