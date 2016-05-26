@@ -17,6 +17,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+add_definitions(-std=c++11)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -94,6 +97,9 @@ catkin_package(
 ## Build ##
 ###########
 
+#include_directories(/home/turtlebot/Desktop/mesas/gaussian_mixture_models/lib/)
+#include_directories(/home/turtlebot/Desktop/mesas/gaussian_mixture_models/include/gaussian_mixture_models/)
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
@@ -101,6 +107,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
+include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src)
 
 ## Declare a cpp library
 # add_library(r_coordination

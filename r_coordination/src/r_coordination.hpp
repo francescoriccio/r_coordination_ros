@@ -14,6 +14,8 @@
 
 #include <tcp_interface/RCOMMessage.h>
 
+#include "gmm_regressor.h"
+
 #define RANDOM_WALK
 //#define MEM_RND_WALK
 //#define MSG_RECEIVED
