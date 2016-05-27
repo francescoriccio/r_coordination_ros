@@ -95,7 +95,7 @@
         <!--node pkg="emergency_stop" name="emerg" type="emergency_stop" args="" output="screen"/-->
 
 		<!--launch-prefix="xterm -e"-->
-		<group if="$(arg not_puppet)">
+		<group if="true">
 			<node name="way_point_navigation" pkg="way_point_navigation" type="way_point_navigation"> 
 		    	<param name="agentId" value="$(arg agentId)"/>
 		    	<param name="pathFilename" value="$(find way_point_navigation)/config/paths/empty.path"/> 

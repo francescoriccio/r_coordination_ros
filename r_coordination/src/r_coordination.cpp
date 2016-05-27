@@ -3,7 +3,7 @@
 void RCoordination::generateContextualEvent(std::vector<Utils::Point2f>* _sim_events)
 {
     _sim_events->push_back(Utils::Point2f(348,389)); ///DIAG_B1
-//    _sim_events->push_back(Utils::Point2f(589,1200)); ///DIAG_1_floor
+    //    _sim_events->push_back(Utils::Point2f(589,1200)); ///DIAG_1_floor
 }
 
 RCoordination::RCoordination(): n("~")
@@ -38,24 +38,26 @@ RCoordination::RCoordination(): n("~")
 
 void RCoordination::visualize()
 {
-//    if( cv::waitKey(33) != 27 )
+    //    if( cv::waitKey(33) != 27 )
     {
         cv::cvtColor(map, vis, CV_GRAY2RGB);
-//        if(target_trigger==sim_target_poses.size()-1)
-//        {
-//            for(unsigned int e=0; e<simulated_event_poses.size(); ++e)
-//                Utils::drawEvent(vis,e,Utils::co2cv_point(simulated_event_poses.at(e)));
-//        }
+        //        if(target_trigger==sim_target_poses.size()-1)
+        //        {
+        //            for(unsigned int e=0; e<simulated_event_poses.size(); ++e)
+        //                Utils::drawEvent(vis,e,Utils::co2cv_point(simulated_event_poses.at(e)));
+        //        }
 
-        getRobotPose();
-        float delta_x = std::fabs(robot_pose.x - sim_target_poses.at(target_trigger).x);
-        float delta_y = std::fabs(robot_pose.y - sim_target_poses.at(target_trigger).y);
-        if(delta_x < 50 && delta_y < 50)
-//        if(target_trigger<sim_target_poses.size())
-            Utils::drawTarget(vis,0,Utils::co2cv_point(sim_target_poses.at(target_trigger)));
+        cv::circle(vis, cv::Point2i(robot_poses.at(0).x,robot_poses.at(0).y),4,CV_RGB(255,0,0),CV_FILLED);
+        cv::circle(vis, follower_desired_pose,2,CV_RGB(0,0,255),CV_FILLED);
+//        getRobotPose();
+//        float delta_x = std::fabs(robot_pose.x - sim_target_poses.at(target_trigger).x);
+//        float delta_y = std::fabs(robot_pose.y - sim_target_poses.at(target_trigger).y);
+//        if(delta_x < 50 && delta_y < 50)
+//            //        if(target_trigger<sim_target_poses.size())
+//            Utils::drawTarget(vis,0,Utils::co2cv_point(sim_target_poses.at(target_trigger)));
 
-        coordinator->status(vis);
-//        cv::namedWindow("vis " + robotname, cv::WINDOW_NORMAL);
+//        coordinator->status(vis);
+        //        cv::namedWindow("vis " + robotname, cv::WINDOW_NORMAL);
         cv::imshow("vis " + robotname,vis);
         cv::waitKey(1);
     }
@@ -68,7 +70,8 @@ void RCoordination::dump_data()
         for(unsigned int rp=0; rp<robot_poses.size(); ++rp)
         {
             int distances[] = {0,0,0};
-            coordinator->getTopologicalGraphHandler()->getDistancesFromPoint(robot_poses.at(rp).x,robot_poses.at(rp).y, robot_poses.at(rp).z, distances);
+            coordinator->getTopologicalGraphHandler()->getDistancesFromPoint(robot_poses.at(rp).x,robot_poses.at(rp).y,
+                                                                             robot_poses.at(rp).z, distances);
 
             dump << robot_poses.at(rp).x<<" "<<robot_poses.at(rp).y<<" "<<robot_poses.at(rp).z<<" ";
             dump << distances[0]<<" "<< distances[1]<<" "<< distances[2]<<" ";
@@ -97,6 +100,8 @@ void RCoordination::init()
 
     human_info_trigger =-1;
     door_trigger=-1;
+
+    regressor.load("/home/francesco/catkin_ws/src/r_coordination_ros/r_coordination/model.dat");
 
 #ifdef DUMP_FILE
     dump.open("/home/sapienzbot/Desktop/dump.txt", std::fstream::out | std::fstream::app);
@@ -128,26 +133,26 @@ void RCoordination::init()
     door_state.insert(std::make_pair<std::string,bool>("door26",false));
 
     ///DIAG_1_floor
-//    sim_target_poses.push_back(Utils::Point2f(589,1300)); // office
-//    sim_target_poses.push_back(Utils::Point2f(855,1283));
-//    sim_target_poses.push_back(Utils::Point2f(855,1090));
-//    sim_target_poses.push_back(Utils::Point2f(342,1100));
-//    sim_target_poses.push_back(Utils::Point2f(590,1200));
-//    sim_target_poses.push_back(Utils::Point2f(339,391));
-//    sim_target_poses.push_back(Utils::Point2f(360,790));
+    //    sim_target_poses.push_back(Utils::Point2f(589,1300)); // office
+    //    sim_target_poses.push_back(Utils::Point2f(855,1283));
+    //    sim_target_poses.push_back(Utils::Point2f(855,1090));
+    //    sim_target_poses.push_back(Utils::Point2f(342,1100));
+    //    sim_target_poses.push_back(Utils::Point2f(590,1200));
+    //    sim_target_poses.push_back(Utils::Point2f(339,391));
+    //    sim_target_poses.push_back(Utils::Point2f(360,790));
 
     /// DIAG_B1
     sim_target_poses.push_back(Utils::Point2f(380,464)); // office
-//    sim_target_poses.push_back(Utils::Point2f(651,437));
-//    sim_target_poses.push_back(Utils::Point2f(426,365));
-//    sim_target_poses.push_back(Utils::Point2f(646,237));
-//    sim_target_poses.push_back(Utils::Point2f(130,365));
-//    sim_target_poses.push_back(Utils::Point2f(705,371));
+    //    sim_target_poses.push_back(Utils::Point2f(651,437));
+    //    sim_target_poses.push_back(Utils::Point2f(426,365));
+    //    sim_target_poses.push_back(Utils::Point2f(646,237));
+    //    sim_target_poses.push_back(Utils::Point2f(130,365));
+    //    sim_target_poses.push_back(Utils::Point2f(705,371));
 
     /// DISlabs
-//    sim_target_poses.push_back(Utils::Point2f(115,310));
-//    sim_target_poses.push_back(Utils::Point2f(195,247));
-//    sim_target_poses.push_back(Utils::Point2f(70,370));
+    //    sim_target_poses.push_back(Utils::Point2f(115,310));
+    //    sim_target_poses.push_back(Utils::Point2f(195,247));
+    //    sim_target_poses.push_back(Utils::Point2f(70,370));
 }
 
 unsigned int RCoordination::getRobotId(std::string robot_n)
@@ -282,22 +287,22 @@ bool RCoordination::isDoorOpen(Utils::Point2f door)
     for(unsigned int d=0; d<coordinator->getTopologicalGraphHandler()->getDoors()->size(); ++d)
     {
         if(norm2D(door,Utils::Point2f(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
-                                           coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))< 5)
+                                      coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))< 5)
         {
             // if nardi is not in his office the door is closed
             if(coordinator->getTopologicalGraphHandler()->getNodes()->at( coordinator->getTopologicalGraphHandler()->
-                                    getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
-                                                     coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label=="door2")
+                                                                          getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
+                                                                                           coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label=="door2")
             {
                 if( (double)(ros::Time::now() - target_time).toSec() > 30 ) // DEMO purposes
                     if(target_trigger==0) return true;
-                else return false;
+                    else return false;
             }
 
             // phd room door state changes
             if(coordinator->getTopologicalGraphHandler()->getNodes()->at( coordinator->getTopologicalGraphHandler()->
-                                    getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
-                                                     coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label=="door5")
+                                                                          getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
+                                                                                           coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label=="door5")
             {
                 if( (double)(ros::Time::now() - target_time).toSec() > 60 ) // DEMO purposes
                     return false;
@@ -305,8 +310,8 @@ bool RCoordination::isDoorOpen(Utils::Point2f door)
             }
 
             return door_state[coordinator->getTopologicalGraphHandler()->getNodes()->at( coordinator->getTopologicalGraphHandler()->
-                        getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
-                                         coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label];
+                    getClosestNodeId(coordinator->getTopologicalGraphHandler()->getDoors()->at(d).x,
+                    coordinator->getTopologicalGraphHandler()->getDoors()->at(d).y))->room_label];
         }
     }
 
@@ -406,11 +411,11 @@ void RCoordination::eventDetector()
 #ifdef VIS_DOOR_STATUS
                 Utils::println("open", Utils::Yellow);
 #endif
-//                tcp_event_msg.value = Utils::to_string(RCoordination::event) + " " +
-//                        Utils::to_string(ContextMiddleware::Event::open_door) + " " +
-//                        Utils::to_string(robot_pose.x) + " " +
-//                        Utils::to_string(robot_pose.y);
-//                tcp_pub.publish(tcp_event_msg);
+                //                tcp_event_msg.value = Utils::to_string(RCoordination::event) + " " +
+                //                        Utils::to_string(ContextMiddleware::Event::open_door) + " " +
+                //                        Utils::to_string(robot_pose.x) + " " +
+                //                        Utils::to_string(robot_pose.y);
+                //                tcp_pub.publish(tcp_event_msg);
 
                 updateEvents(ContextMiddleware::Event(ContextMiddleware::Event::open_door, Utils::Point2f(robot_pose.x,robot_pose.y)));
             }
@@ -424,8 +429,10 @@ void RCoordination::eventDetector()
         for( unsigned int se=0; se<simulated_event_poses.size(); ++se )
         {
             if(human_info_trigger ==
-                    coordinator->getTopologicalGraphHandler()->getClosestNodeId(simulated_event_poses.at(se).x,simulated_event_poses.at(se).y)) break;
-            human_info_trigger = coordinator->getTopologicalGraphHandler()->getClosestNodeId(simulated_event_poses.at(se).x,simulated_event_poses.at(se).y);
+                    coordinator->getTopologicalGraphHandler()->getClosestNodeId(simulated_event_poses.at(se).x,
+                                                                                simulated_event_poses.at(se).y)) break;
+            human_info_trigger = coordinator->getTopologicalGraphHandler()->getClosestNodeId(simulated_event_poses.at(se).x,
+                                                                                             simulated_event_poses.at(se).y);
 
             if(Utils::norm2D(Utils::Point2f(robot_pose.x,robot_pose.y), simulated_event_poses.at(se)) < NEAR_TARGET_THRESHOLD)
             {
@@ -436,7 +443,8 @@ void RCoordination::eventDetector()
                         Utils::to_string(robot_pose.y);
                 tcp_pub.publish(tcp_event_msg);
 
-                updateEvents( ContextMiddleware::Event(ContextMiddleware::Event::human_info, Utils::Point2f(robot_pose.x,robot_pose.y)), "tprinter" );
+                updateEvents( ContextMiddleware::Event(ContextMiddleware::Event::human_info,
+                                                       Utils::Point2f(robot_pose.x,robot_pose.y)), "tprinter" );
             }
         }
     }
@@ -476,46 +484,128 @@ void RCoordination::updateRandomWalk()
         coordinator->updateRobotPoses(robot_poses);
         coordinator->updateContexts();
 
-        if( Utils::norm2D(Utils::cv2co_point(robot_pose).translation(),
-                               Utils::cv2co_point(end_current_target_pose).translation()) < NEAR_TARGET_THRESHOLD
-                || norm(end_current_target_pose) == 0)
+        if(robot_Id==0)
         {
-#ifdef MEM_RND_WALK
-            Utils::Point2f rnd_target(coordinator->getRandomPTarget());
-#else
-            Utils::Point2f rnd_target(coordinator->getRandomTarget());
-#endif
-            end_current_target_pose = cv::Point3f(rnd_target.x, rnd_target.y, 0.f);
-            ++path_id;
-            Utils::print("Current Random Target for robot: ");std::cerr<<robot_Id<<" "<< end_current_target_pose <<std::endl;
-
-            std::vector<cv::Point3f> path;
-            coordinator->getTopologicalGraphHandler()->findPath(
-                        coordinator->getTopologicalGraphHandler()->getNodes()->at(
-                            coordinator->getTopologicalGraphHandler()->getClosestNodeId(robot_pose.x,robot_pose.y) ),
-                        coordinator->getTopologicalGraphHandler()->getNodes()->at(
-                            coordinator->getTopologicalGraphHandler()->getClosestNodeId(end_current_target_pose.x,end_current_target_pose.y) ),
-                        &path);
-
-            path_to_publish.data = std::string("Path_-"+Utils::to_string(path_id)+" 0");
-            for(unsigned int i=0; i<path.size(); ++i)
+            if( Utils::norm2D(Utils::cv2co_point(robot_pose).translation(),
+                              Utils::cv2co_point(end_current_target_pose).translation()) < NEAR_TARGET_THRESHOLD
+                    || norm(end_current_target_pose) == 0)
             {
-                path_to_publish.data +=
-                        + " " + Utils::to_string(
-                            (path.at(i).x *resolution) + origin_x)
-                        + " " + Utils::to_string(
-                            -(path.at(i).y -map.size().height) *resolution + origin_y)
-                        + " " + Utils::to_string(
-                            path.at(i).z);
+#ifdef MEM_RND_WALK
+                Utils::Point2f rnd_target(coordinator->getRandomPTarget());
+#else
+                Utils::Point2f rnd_target(coordinator->getRandomTarget());
+#endif
+                end_current_target_pose = cv::Point3f(rnd_target.x, rnd_target.y, 0.f);
+                ++path_id;
+                Utils::print("Current Random Target for robot: ");std::cerr<<robot_Id<<" "<< end_current_target_pose <<std::endl;
+
+                std::vector<cv::Point3f> path;
+                coordinator->getTopologicalGraphHandler()->findPath(
+                            coordinator->getTopologicalGraphHandler()->getNodes()->at(
+                                coordinator->getTopologicalGraphHandler()->getClosestNodeId(robot_pose.x,robot_pose.y) ),
+                            coordinator->getTopologicalGraphHandler()->getNodes()->at(
+                                coordinator->getTopologicalGraphHandler()->getClosestNodeId(end_current_target_pose.x,
+                                                                                            end_current_target_pose.y) ),
+                            &path);
+
+                path_to_publish.data = std::string("Path_-"+Utils::to_string(path_id)+" 0");
+                for(unsigned int i=0; i<path.size(); ++i)
+                {
+                    path_to_publish.data +=
+                            + " " + Utils::to_string(
+                                (path.at(i).x *resolution) + origin_x)
+                            + " " + Utils::to_string(
+                                -(path.at(i).y -map.size().height) *resolution + origin_y)
+                            + " " + Utils::to_string(
+                                path.at(i).z);
+                }
+                path_pub.publish(path_to_publish);
             }
-            path_pub.publish(path_to_publish);
+        }
+        else //robotId = 1, follower
+        {
+
+            Eigen::Matrix2d cov;
+            cov << 10, 5, 5, 10;
+            cov*=100;
+
+            MultivariateGaussian<double> pdf(2);
+            pdf.setCovariance(cov);
+            Eigen::Vector2d leader_pose;
+            leader_pose << robot_poses.at(0).x, robot_poses.at(0).y;
+            pdf.setMean(leader_pose);
+
+            regressor.setMaxIterations(100);
+            regressor.setDelta(1e-4);
+
+            Eigen::MatrixXd current_samples = Eigen::MatrixXd::Zero(SAMPLE_NUM, 2);
+            for(int s=0; s<SAMPLE_NUM; ++s)
+            {
+                Eigen::Vector2d diff = (leader_pose-pdf.sample(30));
+
+                current_samples(s,0) = diff.norm();
+                current_samples(s,1) = atan2(diff.x(),diff.y());
+            }
+
+            Eigen::MatrixXd regressions = regressor.predict(current_samples);
+
+            Eigen::MatrixXf::Index minRow, minCol;
+            regressions.minCoeff(&minRow, &minCol);
+
+//            std::cerr<<"current_samples(minRow,0): "<<current_samples(minRow,0)<<std::endl;
+//            std::cerr<<"Leader: "<<robot_poses.at(0).x<<", "<<robot_poses.at(0).y<<std::endl;
+//            std::cerr<<"Learner: "<<robot_poses.at(0).x+current_samples(minRow,0)*cos(-current_samples(minRow,1)-M_PI)<<", "
+//                    <<robot_poses.at(0).y+current_samples(minRow,0)*sin(-current_samples(minRow,1)-M_PI)<<std::endl;
+
+            Eigen::Vector2d follower_pose = Eigen::Vector2d::Zero(2);
+            if(fabs(current_samples(minRow,1)>M_PI/4))
+                follower_pose << robot_poses.at(0).x+current_samples(minRow,0)*0.3*cos(-robot_poses.at(0).z-M_PI),
+                    robot_poses.at(0).y+current_samples(minRow,0)*0.3*sin(-robot_poses.at(0).z-M_PI);
+            else
+                follower_pose << robot_poses.at(0).x+current_samples(minRow,0)*0.3*cos(current_samples(minRow,1)*0.1-robot_poses.at(0).z-M_PI),
+                    robot_poses.at(0).y+current_samples(minRow,0)*0.3*sin(current_samples(minRow,1)*0.1-robot_poses.at(0).z-M_PI);
+
+            follower_desired_pose = cv::Point2f(follower_pose.x(), follower_pose.y());
+
+            if( Utils::norm2D(Utils::cv2co_point(robot_pose).translation(),
+                              Utils::cv2co_point(end_current_target_pose).translation()) < NEAR_TARGET_THRESHOLD
+                    || norm(end_current_target_pose) == 0)
+            {
+
+                end_current_target_pose = cv::Point3f(follower_pose.x(), follower_pose.y(), 0.f);
+                ++path_id;
+                Utils::print("Current Random Target for robot: ");std::cerr<<robot_Id<<" "<< end_current_target_pose <<std::endl;
+
+                std::vector<cv::Point3f> path;
+                coordinator->getTopologicalGraphHandler()->findPath(
+                            coordinator->getTopologicalGraphHandler()->getNodes()->at(
+                                coordinator->getTopologicalGraphHandler()->getClosestNodeId(robot_pose.x,robot_pose.y) ),
+                            coordinator->getTopologicalGraphHandler()->getNodes()->at(
+                                coordinator->getTopologicalGraphHandler()->getClosestNodeId(end_current_target_pose.x,
+                                                                                            end_current_target_pose.y) ),
+                            &path);
+
+                path_to_publish.data = std::string("Path_-"+Utils::to_string(path_id)+" 0");
+                for(unsigned int i=0; i<path.size(); ++i)
+                {
+                    path_to_publish.data +=
+                            + " " + Utils::to_string(
+                                (path.at(i).x *resolution) + origin_x)
+                            + " " + Utils::to_string(
+                                -(path.at(i).y -map.size().height) *resolution + origin_y)
+                            + " " + Utils::to_string(
+                                path.at(i).z);
+                }
+                path_pub.publish(path_to_publish);
+            }
+
         }
     }
     else Utils::println(robotname + " is up and waits for teammates!", Utils::Cyan);
 
 
-#ifdef COORD_VIS
-    if(robot_Id == 0)
+#ifndef COORD_VIS
+    if(robot_Id == 1)
         visualize();
 #endif
 
@@ -531,12 +621,12 @@ void RCoordination::updateEvents(ContextMiddleware::Event local_event, std::stri
     {
         if(target_time != ros::Time(0))
         {
-//            Utils::print("Target found in: ", Utils::Green);
-//            std::cerr<< (double)(ros::Time::now() - target_time).toSec();
-//            Utils::println(" sec.", Utils::Green);
+            //            Utils::print("Target found in: ", Utils::Green);
+            //            std::cerr<< (double)(ros::Time::now() - target_time).toSec();
+            //            Utils::println(" sec.", Utils::Green);
 
             target_time = ros::Time::now();
-//            ++target_trigger;
+            //            ++target_trigger;
         }
     }
     coordinator->readEvent(local_event.type, local_event.pos, label);
@@ -622,7 +712,8 @@ void RCoordination::update()
                             + " " + Utils::to_string(
                                 (coordinator->getMappingFunction(robot_Id)->begin()->second.at(i).x *resolution) + origin_x)
                             + " " + Utils::to_string(
-                                -(coordinator->getMappingFunction(robot_Id)->begin()->second.at(i).y -map.size().height) *resolution + origin_y)
+                                -(coordinator->getMappingFunction(robot_Id)->begin()->second.at(i).y
+                                  -map.size().height) *resolution + origin_y)
                             + " " + Utils::to_string(
                                 coordinator->getMappingFunction(robot_Id)->begin()->second.at(i).z);
                 }

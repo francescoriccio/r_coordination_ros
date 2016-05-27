@@ -86,7 +86,6 @@ namespace gmms {
     if (target_size == 0) {
       throw std::runtime_error(notvalid_());
     }
-
     int dataset_size = dataset.rows();
     int num_components = gmm_->numComponents();
     Eigen::VectorXi input_indices(query_size);

@@ -13,8 +13,10 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <tcp_interface/RCOMMessage.h>
+#include <Eigen/Dense>
 
 #include "gmm_regressor.h"
+#include "multivariate_gaussian.h"
 
 #define RANDOM_WALK
 //#define MEM_RND_WALK
@@ -26,6 +28,7 @@
 #define VIS_DOOR_STATUS
 #define NEAR_TARGET_THRESHOLD 10 //[pixels]
 #define TIMEOUT_THRESHOLD 300 //[s]
+#define SAMPLE_NUM 200
 
 
 class RCoordination
@@ -46,6 +49,7 @@ private:
     cv::Point3f robot_pose;
     cv::Point3f end_current_target_pose;
     Coordinator* coordinator;
+    gmms::GMMRegressor regressor;
 
     std::vector<Utils::Point3f> buffer_robot_poses;
     std::vector<Utils::Point3f> robot_poses;
@@ -71,6 +75,7 @@ private:
     ros::Time target_time;
 
     std::fstream dump;
+    cv::Point2f follower_desired_pose;
     //// SIM
     //simulate event "humans tell"
     std::vector<Utils::Point2f> simulated_event_poses;

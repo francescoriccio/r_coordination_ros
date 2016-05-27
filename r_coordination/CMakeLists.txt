@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(Boost COMPONENTS python random REQUIRED)
 
 add_definitions(-std=c++11)
 
@@ -117,7 +118,14 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 
 ## Declare a cpp executable
  add_executable(r_coordination
-  src/r_coordination.cpp
+	src/r_coordination.cpp
+	src/gaussian.cpp
+	src/gaussian_mixture_model.cpp
+	src/gmm_classifier.cpp
+	src/gmm_regressor.cpp
+	src/k_means.cpp
+	src/matrix_io.cpp
+	src/pca.cpp
  )
 
 ## Add cmake target dependencies of the executable/library
@@ -128,6 +136,7 @@ add_dependencies(r_coordination tcp_interface_generate_messages_cpp)
  target_link_libraries(r_coordination
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
+   ${Boost_LIBRARIES}
    rcoordination
    utils_
  )
