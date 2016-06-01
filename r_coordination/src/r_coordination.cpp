@@ -101,7 +101,7 @@ void RCoordination::init()
     human_info_trigger =-1;
     door_trigger=-1;
 
-    regressor.load("/home/francesco/catkin_ws/src/r_coordination_ros/r_coordination/model.dat");
+    regressor.load("/home/sapienzbot/mesas_ws/src/r_coordination_ros/r_coordination/model.dat");
 
 #ifdef DUMP_FILE
     dump.open("/home/sapienzbot/Desktop/dump.txt", std::fstream::out | std::fstream::app);
@@ -549,21 +549,16 @@ void RCoordination::updateRandomWalk()
 
             Eigen::MatrixXd regressions = regressor.predict(current_samples);
 
-            Eigen::MatrixXf::Index minRow, minCol;
-            regressions.minCoeff(&minRow, &minCol);
+            Eigen::MatrixXf::Index maxRow, maxCol;
+            regressions.maxCoeff(&maxRow, &maxCol);
 
 //            std::cerr<<"current_samples(minRow,0): "<<current_samples(minRow,0)<<std::endl;
 //            std::cerr<<"Leader: "<<robot_poses.at(0).x<<", "<<robot_poses.at(0).y<<std::endl;
-//            std::cerr<<"Learner: "<<robot_poses.at(0).x+current_samples(minRow,0)*cos(-current_samples(minRow,1)-M_PI)<<", "
-//                    <<robot_poses.at(0).y+current_samples(minRow,0)*sin(-current_samples(minRow,1)-M_PI)<<std::endl;
 
             Eigen::Vector2d follower_pose = Eigen::Vector2d::Zero(2);
-            if(fabs(current_samples(minRow,1)>M_PI/4))
-                follower_pose << robot_poses.at(0).x+current_samples(minRow,0)*0.3*cos(-robot_poses.at(0).z-M_PI),
-                    robot_poses.at(0).y+current_samples(minRow,0)*0.3*sin(-robot_poses.at(0).z-M_PI);
-            else
-                follower_pose << robot_poses.at(0).x+current_samples(minRow,0)*0.3*cos(current_samples(minRow,1)*0.1-robot_poses.at(0).z-M_PI),
-                    robot_poses.at(0).y+current_samples(minRow,0)*0.3*sin(current_samples(minRow,1)*0.1-robot_poses.at(0).z-M_PI);
+            follower_pose <<leader_pose.x()+current_samples(maxRow,0)*cos(-current_samples(maxRow,1)),
+                    leader_pose.y()+current_samples(maxRow,0)*sin(-current_samples(maxRow,1));
+
 
             follower_desired_pose = cv::Point2f(follower_pose.x(), follower_pose.y());
 
