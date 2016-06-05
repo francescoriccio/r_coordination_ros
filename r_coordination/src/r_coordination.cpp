@@ -101,7 +101,7 @@ void RCoordination::init()
     human_info_trigger =-1;
     door_trigger=-1;
 
-    regressor.load("/home/sapienzbot/mesas_ws/src/r_coordination_ros/r_coordination/model.dat");
+    regressor.load("/home/francesco/catkin_ws/src/r_coordination_ros/r_coordination/model.dat");
 
 #ifdef DUMP_FILE
     dump.open("/home/sapienzbot/Desktop/dump.txt", std::fstream::out | std::fstream::app);
@@ -552,12 +552,12 @@ void RCoordination::updateRandomWalk()
             Eigen::MatrixXf::Index maxRow, maxCol;
             regressions.maxCoeff(&maxRow, &maxCol);
 
-//            std::cerr<<"current_samples(minRow,0): "<<current_samples(minRow,0)<<std::endl;
+//            std::cerr<<"current_samples(minRow,1): "<<current_samples(maxRow,1)<<std::endl;
 //            std::cerr<<"Leader: "<<robot_poses.at(0).x<<", "<<robot_poses.at(0).y<<std::endl;
 
             Eigen::Vector2d follower_pose = Eigen::Vector2d::Zero(2);
-            follower_pose <<leader_pose.x()+current_samples(maxRow,0)*cos(-current_samples(maxRow,1)),
-                    leader_pose.y()+current_samples(maxRow,0)*sin(-current_samples(maxRow,1));
+            follower_pose <<leader_pose.x()+current_samples(maxRow,0)*cos(-current_samples(maxRow,1) - robot_poses.at(0).z),
+                    leader_pose.y()+current_samples(maxRow,0)*sin(-current_samples(maxRow,1) - robot_poses.at(0).z);
 
 
             follower_desired_pose = cv::Point2f(follower_pose.x(), follower_pose.y());
