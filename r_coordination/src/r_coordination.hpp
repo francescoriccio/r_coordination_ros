@@ -28,7 +28,7 @@
 #define VIS_DOOR_STATUS
 #define NEAR_TARGET_THRESHOLD 10 //[pixels]
 #define TIMEOUT_THRESHOLD 300 //[s]
-#define SAMPLE_NUM 200
+#define SAMPLE_NUM 100
 
 
 class RCoordination

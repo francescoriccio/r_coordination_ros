@@ -14,7 +14,7 @@ RCoordination::RCoordination(): n("~")
     map_sub = n.subscribe<nav_msgs::OccupancyGrid>("/map", 1000, &RCoordination::mapSubscriber, this);
     move_sub = n.subscribe<std_msgs::String>("/" + robotname + "/way_point_navigation/feedbackMotion",
                                              1000, &RCoordination::moveSubscriber, this);
-    tcp_sub = n.subscribe<tcp_interface::RCOMMessage>("/RCOMMessage", 1000, &RCoordination::tcpSubscriber, this);
+    tcp_sub = n.subscribe<tcp_interface::RCOMMessage>("/RCOMMessage", 1, &RCoordination::tcpSubscriber, this);
 
     path_pub = n.advertise<std_msgs::String>("targetPose", 1000);
     tcp_pub = n.advertise<tcp_interface::RCOMMessage>("/RCOMMessage",1000);
@@ -101,7 +101,7 @@ void RCoordination::init()
     human_info_trigger =-1;
     door_trigger=-1;
 
-    regressor.load("/home/francesco/catkin_ws/src/r_coordination_ros/r_coordination/model.dat");
+    regressor.load("/home/sapienzbot/mesas_ws/src/r_coordination_ros/r_coordination/model.dat");
 
 #ifdef DUMP_FILE
     dump.open("/home/sapienzbot/Desktop/dump.txt", std::fstream::out | std::fstream::app);
@@ -178,7 +178,7 @@ void RCoordination::getRobotPose()
     {
         try
         {
-            listener->waitForTransform("/" + robotname + "/map", "/" + robotname + "/base_link", ros::Time(0), ros::Duration(1.0));
+            listener->waitForTransform("/" + robotname + "/map", "/" + robotname + "/base_link", ros::Time(0), ros::Duration(0.1));
             listener->lookupTransform("/map", "/" + robotname + "/base_link", ros::Time(0), transform);
         }
         catch(tf::TransformException ex)
@@ -473,7 +473,7 @@ void RCoordination::updateRandomWalk()
             Utils::to_string(robot_pose.z);
     tcp_pub.publish(tcp_robot_pose_msg);
 
-    // update team poses
+//    // update team poses
     updateRobotPoses();
 
     if(isTeamConnected())
@@ -535,13 +535,13 @@ void RCoordination::updateRandomWalk()
             leader_pose << robot_poses.at(0).x, robot_poses.at(0).y;
             pdf.setMean(leader_pose);
 
-            regressor.setMaxIterations(100);
-            regressor.setDelta(1e-4);
+            regressor.setMaxIterations(200);
+            regressor.setDelta(1e-3);
 
             Eigen::MatrixXd current_samples = Eigen::MatrixXd::Zero(SAMPLE_NUM, 2);
             for(int s=0; s<SAMPLE_NUM; ++s)
             {
-                Eigen::Vector2d diff = (leader_pose-pdf.sample(30));
+                Eigen::Vector2d diff = (leader_pose-pdf.sample(100));
 
                 current_samples(s,0) = diff.norm();
                 current_samples(s,1) = atan2(diff.x(),diff.y());
@@ -552,12 +552,20 @@ void RCoordination::updateRandomWalk()
             Eigen::MatrixXf::Index maxRow, maxCol;
             regressions.maxCoeff(&maxRow, &maxCol);
 
-//            std::cerr<<"current_samples(minRow,1): "<<current_samples(maxRow,1)<<std::endl;
+
+//            std::cerr<<"£££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££££"<<std::endl;
+//            std::cerr<<regressions<<std::endl<<std::endl<<std::endl;
+//            std::cerr<<"maxRow: "<<maxRow<<std::endl;
+            std::cerr<<"current_samples(maxRow,1): "<<current_samples(maxRow,0)<<std::endl;
 //            std::cerr<<"Leader: "<<robot_poses.at(0).x<<", "<<robot_poses.at(0).y<<std::endl;
 
+            double rel_dist = current_samples(maxRow,0);
+            if(rel_dist < 5.5) rel_dist = 5.5;
+            double psi = +current_samples(maxRow,1) -robot_poses.at(0).z;
+
             Eigen::Vector2d follower_pose = Eigen::Vector2d::Zero(2);
-            follower_pose <<leader_pose.x()+current_samples(maxRow,0)*cos(-current_samples(maxRow,1) - robot_poses.at(0).z),
-                    leader_pose.y()+current_samples(maxRow,0)*sin(-current_samples(maxRow,1) - robot_poses.at(0).z);
+            follower_pose <<leader_pose.x() + rel_dist*cos(psi),
+                            leader_pose.y() + rel_dist*sin(psi);
 
 
             follower_desired_pose = cv::Point2f(follower_pose.x(), follower_pose.y());
@@ -601,7 +609,9 @@ void RCoordination::updateRandomWalk()
 
 #ifndef COORD_VIS
     if(robot_Id == 1)
+    {
         visualize();
+    }
 #endif
 
 #ifdef DUMP_FILE
@@ -735,7 +745,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "topological_graph");
 
     RCoordination coordination_node;
-    ros::Rate loop_rate(5); // [Hz]
+    ros::Rate loop_rate(1); // [Hz]
 
     while(ros::ok())
     {
